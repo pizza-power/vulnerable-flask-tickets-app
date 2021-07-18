@@ -1,0 +1,14 @@
+version: '3.7'
+services:
+    vuln-app-mysql:
+        restart: unless-stopped
+        network_mode: host
+        hostname: vuln-app-mysql
+        container_name: vuln-db
+        image: mysql/mysql-server
+        environment:
+            MYSQL_ROOT_USER: root
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: vulnapp
+            MYSQL_USER: root
+            MYSQL_PASSWORD: root

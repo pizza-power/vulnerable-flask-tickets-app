@@ -1,0 +1,24 @@
+{% extends 'layout.html' %}
+
+{% block css %}
+<link href="{{ url_for('static', filename='../static/dist/css/account.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+<body class='profile-page'>
+  {% include 'navigation.html' %}
+
+  <div class='form-wrapper'>
+    <ul class='profile-list'>
+      <li><b>Email: </b>{{current_user.email}}</li>
+      <li><b>Admin: </b>{{current_user.isadmin}}</li>
+      <li><b>Info: </b></li>
+    </ul> 
+    
+
+  </div>
+
+</body>
+
+{% endblock %}

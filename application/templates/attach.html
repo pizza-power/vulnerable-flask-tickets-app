@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+
+{% block css %}
+<link href="{{ url_for('static', filename='../static/dist/css/account.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+<body class='login-page'>
+    {% include 'navigation.html' %}
+
+    <div class="form-wrapper">
+        {% for message in get_flashed_messages() %}
+        <div class="alert alert-warning">
+            <button type="button" class="close" data-dismiss="alert">
+                x
+            </button>
+            {{ message }}
+        </div>
+        {% endfor %}
+
+
+        <form method="POST" action="/attach/{{id}}" enctype="multipart/form-data">
+            {{ form.csrf_token }}
+            <input type="text" name="body" />
+            <input type="file" name="file" />
+            <input type="submit" value="Submit" />
+
+            <div class="submit-button">
+                {{ form.submit }}
+            </div>
+
+        </form>
+    </div>
+</body>
+{% endblock %}

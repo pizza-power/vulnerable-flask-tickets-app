@@ -1,0 +1,18 @@
+<header>
+  <div class="navigation-bar">
+    {% if current_user.is_authenticated %}
+    <nav>
+      <a href="{{url_for('home')}}">Home</a>
+      <a href="{{url_for('posts')}}">Posts</a>
+      <a href="{{url_for('profile')}}">Profile</a>
+      <a href="{{url_for('logout')}}">Logout</a>
+
+      {% else %}
+      <a href="{{url_for('home')}}">Home</a>
+      <a href="{{url_for('login')}}">Login</a>
+      <a href="{{url_for('register')}}">Register</a>
+
+      {% endif %}
+    </nav>
+  </div>
+</header>
