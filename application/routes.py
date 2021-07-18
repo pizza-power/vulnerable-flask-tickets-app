@@ -220,7 +220,7 @@ def attach(id):
 @app.route("/archive/<id>", methods=["POST"])
 @login_required
 def archive(id):
-    """ 
+    """
     archives json'd and pickled tickets so we can send them to our
     monitoring apps
     """
@@ -234,9 +234,14 @@ def archive(id):
         data = base64.urlsafe_b64encode(pickle.dumps(post.body + str(post.id)))
         filename = id + ".pickle"
         filepath = os.path.join(app.config["ATTACHMENTS_DIR"], filename)
-        f = open(filepath, "wb")
-        f.write(data)
-        f.close()
+        try:
+            f = open(filepath, "wb")
+            f.write(data)
+            f.close()
+            flash("Ticket archived!")
+        except os.error as e:
+            print(e)
+            return redirect(url_for(".posts"))
 
         # load to trigger vuln, put this in other app
         # f = open(filepath, "rb")
@@ -245,11 +250,15 @@ def archive(id):
         return redirect(url_for(".posts"))
 
 
-@app.route("/restore/<id>", methods=["GET"]) # or post or ?
+@app.route("/restore/<id>", methods=["GET"])  # or post or ?
 @login_required
 def restore(id):
+    """
+    admin function to restore archived ticket
+    this is where we could instroduce json depickling
+    vulnerability
+    """
     return render_template(url_for(".posts"))
-
 
 
 # ------------------------ File Functions and Routes ---------------------------
@@ -267,8 +276,7 @@ def allowed_file(filename):
 @login_required
 def uploaded_file(filename):
     print(filename)
-    # TODO: fix this hardcoded path when refactoring
     return send_from_directory(
-        "/home/user/data/programming/vuln-flask-app/app/application/attachments",
+        app.config["ATTACHMENTS_DIR"],
         filename,
     )

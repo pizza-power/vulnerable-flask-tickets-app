@@ -14,8 +14,18 @@
     <p>{{description}}</p>
   </div>
 
+  {% for message in get_flashed_messages() %}
+  <div class="alert alert-warning">
+    <button type="button" class="close" data-dismiss="alert">
+      x
+    </button>
+    {{ message }}
+  </div>
+  {% endfor %}
 
   <div class="post-wrapper">
+
+
     {% if posts|length == 0 %}
     <h2>No tickets found.</h2>
     {% endif %}

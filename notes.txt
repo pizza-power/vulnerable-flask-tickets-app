@@ -1,0 +1,60 @@
+# https://hackersandslackers.com/your-first-flask-application
+
+
+start docker mysql server with docker compose file
+
+TODO:
+[] route to post a ticket
+    post page needs to render the form for submitting a ticket
+[x] ticket model
+[x] ticket view
+[x] add attachment icon to posts so you can see if attachments are present
+[] js and css updates
+[] print ticket
+[] roles for attach, etc: https://flask-user.readthedocs.io/en/v0.5/authorization.html
+[] better error logging
+
+admin stuff
+[x] update user model to include isadmin
+[] close and archive ticket
+[] reopen archived ticket for depickling
+[] attach file to ticket? which one is pickling
+[] remove attachments
+[] check for file existing before saving attachment
+[] user search, add, delete, edit, etc https://stackoverflow.com/questions/6699360/flask-sqlalchemy-update-a-rows-information
+
+MVA:
+
+attach and remove files, no overwriting
+JS and CSS sat, nav is good
+admin routes secured
+close and archive tickets and reopen (depickle vuln) 
+vuln to get admin account? XSS? LFI? admin token?
+
+
+>  www-data
+dirsearch/whatever to find 
+/register
+register an account
+find DB backup
+crack db password with john
+review code for auth errors
+get admin account
+admin attach file to ticket with pickles file
+then load ticket to deser. pickled file and have www-data user
+
+> pizzapower user has python networking tools in their home dir
+somehow need to use scapy to crteat a packet to get pizzapower user
+ping type eval with ip address -> code injection?
+
+> root 
+python server running localhost with some eval?
+
+
+
+setup according to offsec faq
+
+reorganize this application
+
+Time Tracker:
+14 071621

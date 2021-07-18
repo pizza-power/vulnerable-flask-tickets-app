@@ -30,6 +30,6 @@ class Config:
     # attachments
     # TODO: this is hacky, needs to cleanup directory structure
     ATTACHMENTS_DIR = os.path.join(
-        os.getcwd() + "/app/application/", "attachments"
+        os.getcwd() + "/application/", "attachments"
     )
     ALLOWED_EXTENSIONS = {"txt", "pdf", "jpg", "jpeg"}
