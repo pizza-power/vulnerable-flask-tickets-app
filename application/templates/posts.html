@@ -1,62 +1,58 @@
 {% extends 'layout.html' %}
-
 {% block css %}
 <link href="{{ url_for('static', filename='css/index.css') }}" rel="stylesheet">
 {% endblock %}
-
 {% block content %}
-
 <body class="posts-page">
-  {% include 'navigation.html' %}
-
-  <div class="container">
-    <h1>{{title}}</h1>
-    <p>{{description}}</p>
-  </div>
-
-  {% for message in get_flashed_messages() %}
-  <div class="alert alert-warning">
-    <button type="button" class="close" data-dismiss="alert">
+   {% include 'navigation.html' %}
+   <div class="container">
+      <h1>{{title}}</h1>
+      <p>{{description}}</p>
+   </div>
+   {% for message in get_flashed_messages() %}
+   <div class="alert alert-warning">
+      <button type="button" class="close" data-dismiss="alert">
       x
-    </button>
-    {{ message }}
-  </div>
-  {% endfor %}
-
-  <div class="post-wrapper">
-
-
-    {% if posts|length == 0 %}
-    <h2>No tickets found.</h2>
-    {% endif %}
-
-    {%for i in range(posts|length)%}
-
-    <h2>#: {{posts[i].ticket_number}}</h2>
-    <p><b>Info: </b>{{posts[i].body}}</p>
-    <div class="attachment-icon">
-      {% if posts[i].attachment is not none %}
-      {% set filename = posts[i].attachment.split('/')[-1:] %}
-      <a href="{{url_for('uploaded_file', filename=filename)}}" target="_blank">
-        <img src="{{url_for('static', filename='img/attachment.jpeg') }}">
-      </a>
+      </button>
+      {{ message }}
+   </div>
+   {% endfor %}
+   <!-- <div class="post-wrapper"> -->
+      {% if posts|length == 0 %}
+      <h2>No tickets found.</h2>
       {% endif %}
-
-      {% if current_user.isadmin %}
-      <form method="post" action="archive/{{posts[i].id}}" class="inline">
-        <input type="hidden" name="extra_submit_param" value="extra_submit_value">
-        <button type="submit" name="submit_param" value="submit_value" class="link-button">
-          Archive
-        </button>
-      </form>
-      {% endif %}
-      <hr>
-
-    </div>
-
-
-    {%endfor%}
-  </div>
-
+      {%for i in range(posts|length)%}
+      <table class="table">
+         <tr>
+            <th>Ticket Number</th>
+            <th>Body</th>
+            <th>Attachment</th>
+            <th>Archive</th>
+         </tr>
+         <tr>
+            <td>{{posts[i].ticket_number}}</td>
+            <td>{{posts[i].body}}</td>
+            <td class='attachment-icon'>{% if posts[i].attachment is not none %}
+               {% set filename = posts[i].attachment.split('/')[-1:] %}
+               <a href="{{url_for('uploaded_file', filename=filename)}}" target="_blank">
+               <img src="{{url_for('static', filename='img/attachment.jpeg') }}">
+               </a>
+               {% endif %}
+            </td>
+            <td>
+               {% if current_user.isadmin %}
+               <form method="post" action="archive/{{posts[i].id}}" class="inline">
+                  {{ form.csrf_token }}
+                  <input type="hidden" name="extra_submit_param" value="extra_submit_value">
+                  <button type="submit" name="submit_param" value="submit_value" class="link-button">
+                  Archive
+                  </button>
+               </form>
+               {% endif %}
+            </td>
+         </tr>
+      </table>
+      {%endfor%}
+   <!-- </div> -->
 </body>
 {% endblock %}

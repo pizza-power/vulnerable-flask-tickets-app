@@ -22,7 +22,7 @@
     <h1>Log In</h1>
     <form method="POST" action="/login">
       {{ form.csrf_token }}
-
+      
       <fieldset class="email">
         {{ form.email.label }}
         {{ form.email(placeholder='youremail@example.com') }}
@@ -34,9 +34,10 @@
         {% endif %}
       </fieldset>
 
+      
       <fieldset class="password">
         {{ form.password.label }}
-        {{ form.password }}
+        {{ form.password(autocomplete="off") }}
         {% if form.password.errors %}
         <ul class="errors">
           {% for error in form.password.errors %}

@@ -40,8 +40,9 @@
       </fieldset>
 
       <fieldset class="password">
+        
         {{ form.password.label }}
-        {{ form.password }}
+        {{ form.password(autocomplete="off") }}
         {% if form.password.errors %}
         <ul class="errors">
           {% for error in form.password.errors %}
@@ -52,7 +53,7 @@
 
       <fieldset class="confirmPassword">
         {{ form.confirmPassword.label }}
-        {{ form.confirmPassword }}
+        {{ form.confirmPassword(autocomplete="off") }}
         {% if form.confirmPassword.errors %}
         <ul class="errors">
           {% for error in form.confirmPassword.errors %}

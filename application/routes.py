@@ -280,3 +280,10 @@ def uploaded_file(filename):
         app.config["ATTACHMENTS_DIR"],
         filename,
     )
+
+@app.after_request
+def apply_caching(response):
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers['Content-Security-Policy'] = "default-src 'self'"
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    return response
