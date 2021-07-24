@@ -7,6 +7,7 @@ from wtforms import (
     DateField,
     SelectField,
 )
+from wtforms.fields.core import IntegerField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, URL
 
 
@@ -51,3 +52,11 @@ class LoginForm(FlaskForm):
 
 class AttachmentForm(FlaskForm):
     """ form used by admins to attach files to tickets"""
+
+
+class TicketForm(FlaskForm):
+    """ form used to submit new tickets """
+    ticket_number = IntegerField("ticket_number", validators=[DataRequired()])
+    body = TextAreaField("body", validators=[DataRequired()])
+    
+    submit = SubmitField("Create Ticket")

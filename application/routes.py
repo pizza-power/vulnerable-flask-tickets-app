@@ -19,7 +19,7 @@ from werkzeug.security import generate_password_hash
 from werkzeug.exceptions import HTTPException
 from werkzeug.utils import secure_filename
 from functools import wraps
-from .forms import AttachmentForm, LoginForm, RegisterForm
+from .forms import AttachmentForm, LoginForm, RegisterForm, TicketForm
 from .models import User, Post
 from . import db
 from . import login_manager
@@ -36,7 +36,7 @@ def home():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    form = RegisterForm()
+    form = RegisterForm() # should this go below if user is auth'd so it isn't created early
     if current_user.is_authenticated:
         return redirect(url_for(".home"))
 
@@ -170,16 +170,37 @@ def posts():
 
     if request.method == "GET":
         return render_template(
-            "posts.html", posts=posts, form=form, title=">Tickets"
+            "posts.html", posts=posts, form=form, title="Open Tickets"
         )
 
+@app.route("/create", methods=["GET", "POST"])
+@login_required
+def create():
+    """ creates a new post """
+    form = TicketForm()
+    if request.method == "POST":
+        if form.validate_on_submit():
+            ticket_number = request.form.get("ticket_number")
+            body = request.form.get("body")
+            post = Post(ticket_number=ticket_number, body=body, attachment=None)
+            db.session.add(post)
+            db.session.commit()            
+            flash("Ticket Added!")
+            return redirect(url_for(".posts"))
+        else:
+            print(form.errors)
+            return redirect(url_for(".profile"))
+    
+    return render_template("create.html", form=form, title="Create a ticket.")
 
+            
 # -------------- admin functions ------------------------------
 
 
 @app.route("/attach/<id>", methods=["GET", "POST"])
 @login_required
 def attach(id):
+    # TODO: no csrf here? should we use this for a vuln?
     if request.method == "GET":
         form = AttachmentForm("attach file")
         return render_template("attach.html", form=form, id=id)

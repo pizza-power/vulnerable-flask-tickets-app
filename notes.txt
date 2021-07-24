@@ -13,6 +13,8 @@ TODO:
 [] print ticket
 [] roles for attach, etc: https://flask-user.readthedocs.io/en/v0.5/authorization.html
 [] better error logging
+[x] security hackers
+[x] turn off password autocomplete
 
 admin stuff
 [x] update user model to include isadmin
