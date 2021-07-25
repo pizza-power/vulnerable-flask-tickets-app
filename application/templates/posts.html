@@ -43,6 +43,8 @@
          </td>
          <td>
             {% if current_user.isadmin %}
+            <div class="form-wrapper">
+               <!-- TODO: edit style of button to look like other buttons-->
             <form method="post" action="archive/{{posts[i].id}}" class="inline">
                {{ form.csrf_token }}
                <input type="hidden" name="extra_submit_param" value="extra_submit_value">
@@ -50,6 +52,7 @@
                   Archive
                </button>
             </form>
+            </div>
             {% endif %}
          </td>
       </tr>

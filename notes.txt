@@ -3,6 +3,10 @@
 
 start docker mysql server with docker compose file
 
+git add -u
+git commit -m 'message'
+git push origin main
+
 TODO:
 [] route to post a ticket
     post page needs to render the form for submitting a ticket
@@ -43,15 +47,23 @@ crack db password with john
 review code for auth errors
 get admin account
 admin attach file to ticket with pickles file
-then load ticket to deser. pickled file and have www-data user
+or pickle the body?
+that pickled file is stored on disk
+get rev shell from an admin function SSTI? do sanitization to make rev shell harder
 
-> pizzapower user has python networking tools in their home dir
+
+> pizzapower user 
+python networking tools in their home dir
 somehow need to use scapy to crteat a packet to get pizzapower user
 ping type eval with ip address -> code injection?
+or one tool takes these tickets as made above and formats them via pickle.loads
+to get rev shell as pizzapower
 
 > root 
-python server running localhost with some eval?
-
+kotti running as root?
+pizzapower cannot edit any files but workflow zcml, which has permissions 
+that are incorrect
+user can read most of the source files
 
 
 setup according to offsec faq
@@ -59,4 +71,5 @@ setup according to offsec faq
 reorganize this application
 
 Time Tracker:
-14 071621
+30 hours total 7-25
+

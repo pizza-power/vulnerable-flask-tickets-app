@@ -14,12 +14,8 @@ class User(UserMixin, db.Model):
         db.String(200), primary_key=False, unique=False, nullable=False
     )
     isadmin = db.Column(db.Boolean(), default=False)
-    created_on = db.Column(
-        db.DateTime, index=False, unique=False, nullable=True
-    )
-    last_login = db.Column(
-        db.DateTime, index=False, unique=False, nullable=True
-    )
+    created_on = db.Column(db.DateTime, index=False, unique=False, nullable=True)
+    last_login = db.Column(db.DateTime, index=False, unique=False, nullable=True)
 
     def set_password(self, password):
         """Create hashed password."""
@@ -35,7 +31,7 @@ class User(UserMixin, db.Model):
 
 
 class Post(db.Model):
-    """ Ticket Posts Model"""
+    """Ticket Posts Model"""
 
     def __init__(self, ticket_number, body, attachment=None):
         self.ticket_number = ticket_number

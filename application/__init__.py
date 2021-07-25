@@ -50,7 +50,7 @@ def create_app():
         # create test tickets
         if not Post.query.all():
             ticket_number = 1
-            body = "test ticket from app startup"
+            body = "I'm having trouble with some admin functions. I backed up the code for you to look at - flasktickets.zip"
             attachment = "/home/user/data/programming/vuln-flask-app/app/application/attachments/pizza.jpeg"
             p = Post(ticket_number, body, attachment)
             print(f"post is: {p}")

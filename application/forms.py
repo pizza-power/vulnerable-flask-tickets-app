@@ -51,12 +51,13 @@ class LoginForm(FlaskForm):
 
 
 class AttachmentForm(FlaskForm):
-    """ form used by admins to attach files to tickets"""
+    """form used by admins to attach files to tickets"""
 
 
 class TicketForm(FlaskForm):
-    """ form used to submit new tickets """
-    ticket_number = IntegerField("ticket_number", validators=[DataRequired()])
+    """form used to submit new tickets"""
+
+    ticket_number = IntegerField("Ticket Number:", validators=[DataRequired()])
     body = TextAreaField("body", validators=[DataRequired()])
-    
+
     submit = SubmitField("Create Ticket")

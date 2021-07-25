@@ -13,6 +13,7 @@ from flask import (
     url_for,
     send_from_directory,
 )
+from flask.templating import render_template_string
 from flask_login import login_required, logout_user, current_user, login_user
 from flask_user import roles_required
 from werkzeug.security import generate_password_hash
@@ -36,7 +37,9 @@ def home():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    form = RegisterForm() # should this go below if user is auth'd so it isn't created early
+    form = (
+        RegisterForm()
+    )  # should this go below if user is auth'd so it isn't created early
     if current_user.is_authenticated:
         return redirect(url_for(".home"))
 
@@ -173,27 +176,35 @@ def posts():
             "posts.html", posts=posts, form=form, title="Open Tickets"
         )
 
+
 @app.route("/create", methods=["GET", "POST"])
 @login_required
 def create():
-    """ creates a new post """
+    """creates a new post"""
     form = TicketForm()
     if request.method == "POST":
         if form.validate_on_submit():
             ticket_number = request.form.get("ticket_number")
             body = request.form.get("body")
+            # TODO: have the system generate ticket number
+            # will simply remote reuqired from form
+            # post ticket
+            # then find latest ticket post and render it
+            # or as soon as page is rendered, create an empty ticket as placeholder
+            # populate field and don't let user change field of ticket number or just render it whereeve
+            # if page is closed, delete ticket
             post = Post(ticket_number=ticket_number, body=body, attachment=None)
             db.session.add(post)
-            db.session.commit()            
+            db.session.commit()
             flash("Ticket Added!")
             return redirect(url_for(".posts"))
         else:
             print(form.errors)
             return redirect(url_for(".profile"))
-    
+
     return render_template("create.html", form=form, title="Create a ticket.")
 
-            
+
 # -------------- admin functions ------------------------------
 
 
@@ -220,9 +231,7 @@ def attach(id):
                 # TODO: Vuln, secure_filename sanitizes, see
                 # https://flask.palletsprojects.com/en/2.0.x/patterns/fileuploads/
                 filename = secure_filename(file.filename)
-                filepath = os.path.join(
-                    app.config["ATTACHMENTS_DIR"], filename
-                )
+                filepath = os.path.join(app.config["ATTACHMENTS_DIR"], filename)
 
                 # TODO: check if file already exists, or it will overwrite the previous one
 
@@ -282,14 +291,34 @@ def restore(id):
     return render_template(url_for(".posts"))
 
 
+@app.route("/addnote/<id>", methods=["GET", "POST"])
+@login_required
+def addnote(id):
+
+    if not current_user.isadmin:
+        # TODO: update this to render a different template?
+        print("user not admin")
+        flash("you must be admin to do this!")
+        return render_template(url_for(".posts"))
+    
+    if request.method == "GET":
+        # TODO: do some sanitization here
+        note = "{{request.application.__globals__.__builtins__.__import__('os').popen('cd ~; ls').read()}}"
+        # TODO: This is SSTI location for www-data shell
+        # TODO: add this to db then?
+        return render_template_string(f"<h1>Added Note to Ticket: {id}<h1><p>{note}")
+
+    if request.method == "POST":
+        return render_template(url_for(".posts"))
+
+
 # ------------------------ File Functions and Routes ---------------------------
 
 
 def allowed_file(filename):
     return (
         "." in filename
-        and filename.rsplit(".", 1)[1].lower()
-        in app.config["ALLOWED_EXTENSIONS"]
+        and filename.rsplit(".", 1)[1].lower() in app.config["ALLOWED_EXTENSIONS"]
     )
 
 
@@ -302,9 +331,10 @@ def uploaded_file(filename):
         filename,
     )
 
+
 @app.after_request
 def apply_caching(response):
     response.headers["X-Frame-Options"] = "DENY"
-    response.headers['Content-Security-Policy'] = "default-src 'self'"
-    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers["Content-Security-Policy"] = "default-src 'self'"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
     return response
