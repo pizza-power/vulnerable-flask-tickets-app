@@ -33,8 +33,8 @@ class User(UserMixin, db.Model):
 class Post(db.Model):
     """Ticket Posts Model"""
 
-    def __init__(self, ticket_number, body, attachment=None):
-        self.ticket_number = ticket_number
+    def __init__(self,  body, attachment=None):
+        # self.ticket_number = ticket_number
         self.body = body
         self.attachment = attachment
 
@@ -42,7 +42,7 @@ class Post(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    ticket_number = db.Column(db.Integer, unique=True, nullable=True)
+    # ticket_number = db.Column(db.Integer, unique=True, nullable=True)
 
     body = db.Column(db.String(1000), unique=False, nullable=False)
 

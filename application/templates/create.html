@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+{% block css %}
+<link href="{{ url_for('static', filename='../static/dist/css/account.css') }}" rel="stylesheet">
+{% endblock %}
+{% block content %}
+
+<body class="create-page">
+    {% include 'navigation.html' %}
+    <div class="form-wrapper">
+        <form method="POST" action="/create">
+            {{ form.csrf_token }}
+            <fieldset class="body">
+                {{ form.body(placeholder="What's the problem?", rows='10', cols='31') }}
+                {% if form.body.errors %}
+                <ul class="errors">
+                    {% for error in form.body.errors %}
+                    <li>{{ error }}</li>{% endfor %}
+                </ul>
+                {% endif %}
+            </fieldset>
+            <div class="submit-button">
+                {{ form.submit }}
+            </div>
+    </div>
+    </form>
+</body>
+{% endblock %}

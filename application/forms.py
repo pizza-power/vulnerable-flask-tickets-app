@@ -57,7 +57,6 @@ class AttachmentForm(FlaskForm):
 class TicketForm(FlaskForm):
     """form used to submit new tickets"""
 
-    ticket_number = IntegerField("Ticket Number:", validators=[DataRequired()])
     body = TextAreaField("body", validators=[DataRequired()])
 
     submit = SubmitField("Create Ticket")

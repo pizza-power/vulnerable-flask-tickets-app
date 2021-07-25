@@ -7,8 +7,8 @@
 <body class="posts-page">
    {% include 'navigation.html' %}
    <div class="container">
-      <h1>{{title}}</h1>
-      <a href="/create">+</a>
+      <h1>{{title}}<a href="/create">+</a></h1>
+
       <p>{{description}}</p>
    </div>
    {% for message in get_flashed_messages() %}
@@ -23,7 +23,6 @@
    {% if posts|length == 0 %}
    <h2>No tickets found.</h2>
    {% endif %}
-   {%for i in range(posts|length)%}
    <table class="table">
       <tr>
          <th>Ticket Number</th>
@@ -31,27 +30,35 @@
          <th>Attachment</th>
          <th>Archive</th>
       </tr>
+   </table>
+   {%for i in range(posts|length)%}
+   <!-- TODO: pagination -->
+
+   <table class="table">
       <tr>
-         <td>{{posts[i].ticket_number}}</td>
+         <td>{{posts[i].id}}</td>
          <td>{{posts[i].body}}</td>
-         <td class='attachment-icon'>{% if posts[i].attachment is not none %}
+         <td class='attachment-icon'>
+            {% if posts[i].attachment is not none %}
             {% set filename = posts[i].attachment.split('/')[-1:] %}
             <a href="{{url_for('uploaded_file', filename=filename)}}" target="_blank">
                <img src="{{url_for('static', filename='img/attachment.jpeg') }}">
             </a>
             {% endif %}
+            {% if current_user.isadmin and not filename %}
+               <a href="attach/{{posts[i].id}}"><h3>+</h3></a>
+            {% endif %}
          </td>
          <td>
             {% if current_user.isadmin %}
             <div class="form-wrapper">
-               <!-- TODO: edit style of button to look like other buttons-->
-            <form method="post" action="archive/{{posts[i].id}}" class="inline">
-               {{ form.csrf_token }}
-               <input type="hidden" name="extra_submit_param" value="extra_submit_value">
-               <button type="submit" name="submit_param" value="submit_value" class="link-button">
-                  Archive
-               </button>
-            </form>
+               <form method="post" action="archive/{{posts[i].id}}" class="inline">
+                  {{ form.csrf_token }}
+                  <input type="hidden" name="extra_submit_param" value="extra_submit_value">
+                  <button type="submit" name="submit_param" value="submit_value" class="link-button">
+                     Archive
+                  </button>
+               </form>
             </div>
             {% endif %}
          </td>

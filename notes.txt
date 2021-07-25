@@ -8,8 +8,8 @@ git commit -m 'message'
 git push origin main
 
 TODO:
-[] route to post a ticket
-    post page needs to render the form for submitting a ticket
+[x] route to post a ticket
+[x] post page needs to render the form for submitting a ticket
 [x] ticket model
 [x] ticket view
 [x] add attachment icon to posts so you can see if attachments are present

