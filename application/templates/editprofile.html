@@ -1,16 +1,13 @@
 {% extends 'layout.html' %}
-{% block css %}
-<link href="{{ url_for('static', filename='../static/dist/css/account.css') }}" rel="stylesheet">
-{% endblock %}
 {% block content %}
 
 <body class="create-page">
     {% include 'navigation.html' %}
     <div class="form-wrapper">
-        <form method="POST" action="/create">
+        <form method="POST" action="{{url_for('edit_profile', id=current_user.id)}}">
             {{ form.csrf_token }}
             <fieldset class="body">
-                {{ form.body(placeholder="What's the problem?", rows='10', cols='31') }}
+                {{ form.body(placeholder=current_user.info, rows='10', cols='31') }}
                 {% if form.body.errors %}
                 <ul class="errors">
                     {% for error in form.body.errors %}
@@ -21,7 +18,10 @@
             <div class="submit-button">
                 {{ form.submit }}
             </div>
+
+            <input type="submit" name="submit" value="Cancel" formnovalidate>
         </form>
     </div>
 </body>
+
 {% endblock %}

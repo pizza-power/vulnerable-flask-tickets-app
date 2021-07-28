@@ -42,6 +42,7 @@ def create_app():
             admin = User(
                 email=email,
                 password=generate_password_hash(password, method="sha256"),
+                info="pizza is my name, and pizza is my game",
                 isadmin=True,
             )
             db.session.add(admin)

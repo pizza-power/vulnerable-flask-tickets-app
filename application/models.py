@@ -14,6 +14,7 @@ class User(UserMixin, db.Model):
         db.String(200), primary_key=False, unique=False, nullable=False
     )
     isadmin = db.Column(db.Boolean(), default=False)
+    info = db.Column(db.String(1000), unique=False, nullable=True)
     created_on = db.Column(db.DateTime, index=False, unique=False, nullable=True)
     last_login = db.Column(db.DateTime, index=False, unique=False, nullable=True)
 

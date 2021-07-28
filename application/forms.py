@@ -60,3 +60,10 @@ class TicketForm(FlaskForm):
     body = TextAreaField("body", validators=[DataRequired()])
 
     submit = SubmitField("Create Ticket")
+
+class ProfileForm(FlaskForm):
+    """ Form used by a user to edit their profile """
+    # TODO: add ability to edit email, password
+    body = TextAreaField("body")
+
+    submit = SubmitField("Done Editing")

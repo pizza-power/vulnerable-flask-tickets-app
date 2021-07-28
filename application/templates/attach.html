@@ -22,7 +22,7 @@
 
         <form method="POST" action="/attach/{{id}}" enctype="multipart/form-data">
             {{ form.csrf_token }}
-            <input type="text" name="body" />
+            <!-- <input type="text" name="body" /> -->
             <input type="file" name="file" />
             <input type="submit" value="Submit" />
 
