@@ -12,6 +12,10 @@ clone this repo
 
 start the db with the docker compose file
 
-python3 wsgi.py
+    $ docker-compose up
+
+Start the server
+
+    $ python3 wsgi.py
 
 
