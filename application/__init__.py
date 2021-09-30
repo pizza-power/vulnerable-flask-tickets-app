@@ -35,8 +35,8 @@ def create_app():
 
         # create admin user
         if not User.query.all():
-            email = "pizzapwr@gmail.com"
-            password = "pizza123"
+            email = "admin@admin.com"
+            password = "admin"
             print(f"admin username:{email}")
             print(f"password:{password}")
             admin = User(
